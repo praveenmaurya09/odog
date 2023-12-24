@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from datetime import date
 
 import mysql.connector
@@ -16,9 +16,9 @@ mycursor = mydb.cursor()
 
 @app.route('/')
 def home():
-    return jsonify("Welcome TO One Day One Goal")
+    return render_template('index.html')
 
-
+@app.route('/')
 @app.route('/create_goal', methods = ['POST'])
 def create():
     data = request.json
@@ -45,6 +45,19 @@ def create():
     mydb.commit()
 
     return jsonify({"Message": "Goal Created Successfully"})
+
+@app.route('/register',methods=['GET','POST'])
+def register():
+    if request.method == 'POST':
+        pass
+    return render_template('register.html')
+
+
+@app.route('/login',methods=['GET','POST'])
+def login():
+    if request.method == 'POST':
+        pass
+    return render_template('login.html')
 
 @app.route('/get_goal/<string:date>', methods = ["GET"])
 def get_goal(date):
