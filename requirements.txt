@@ -13,3 +13,5 @@ protobuf==4.21.12
 setuptools==58.1.0
 Werkzeug==3.0.1
 zipp==3.17.0
+passlib==1.7.4
+bcrypt==4.1.2

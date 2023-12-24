@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from datetime import date
+from passlib.hash import bcrypt
 
 import mysql.connector
 
@@ -49,7 +50,24 @@ def create():
 @app.route('/register',methods=['GET','POST'])
 def register():
     if request.method == 'POST':
-        pass
+        email = request.form['email']
+        name = request.form['name']
+        password = request.form['password']
+        hashed_password = bcrypt.hash(password)
+
+        query = "select * from users where email = %s"
+        values = (email,)
+        mycursor.execute(query, values)
+        result = mycursor.fetchone()
+        if result:
+            return jsonify({"message":"Email Already Exist"}), 400
+
+        query = "insert into users (email, name, password) Values (%s, %s, %s)"
+        values = (email, name, hashed_password)
+        mycursor.execute(query, values)
+        mydb.commit()
+        return jsonify({"message":"User registered Successfully"}), 200
+
     return render_template('register.html')
 
 
@@ -57,6 +75,7 @@ def register():
 def login():
     if request.method == 'POST':
         pass
+        
     return render_template('login.html')
 
 @app.route('/get_goal/<string:date>', methods = ["GET"])
