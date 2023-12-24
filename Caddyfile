@@ -1,0 +1,3 @@
+https://13.233.161.110{
+    reverse_proxy localhost:8000
+}
