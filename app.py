@@ -1,11 +1,13 @@
 from flask import Flask, request, jsonify, render_template
 from datetime import date
-from passlib.hash import bcrypt
+# from passlib.hash import bcrypt
+from flask_bcrypt import Bcrypt
 
 import mysql.connector
 
 app = Flask(__name__)
 
+flask_bcrypt = Bcrypt(app)
 mydb = mysql.connector.connect(
     host = "localhost",
     user = "root",
@@ -53,7 +55,8 @@ def register():
         email = request.form['email']
         name = request.form['name']
         password = request.form['password']
-        hashed_password = bcrypt.hash(password)
+        # hashed_password = bcrypt.hash(password)
+        hashed_password = flask_bcrypt.generate_password_hash(password).decode('utf-8')
 
         query = "select * from users where email = %s"
         values = (email,)
@@ -74,8 +77,29 @@ def register():
 @app.route('/login',methods=['GET','POST'])
 def login():
     if request.method == 'POST':
-        pass
-        
+        email = request.form['email']
+        password = request.form['password']
+        query = "select * from users where email = %s"
+        values = (email,)
+        mycursor.execute(query, values)
+        result = mycursor.fetchone()
+
+        if result is None:
+            return jsonify({"Message": "User Doesn't Exist"})
+
+        user = {'email':result[0], 'name':result[1], 'password':result[2]}
+        # import pdb
+        # pdb.set_trace()
+
+        hashed_password_from_db = user['password']
+
+        # if bcrypt.checkpw(password, hashed_password_from_db):
+        if flask_bcrypt.check_password_hash(hashed_password_from_db, password):
+            return jsonify({"message":"Login Successful"})
+        else:
+            return jsonify({"message":"Invalid Password"})
+
+
     return render_template('login.html')
 
 @app.route('/get_goal/<string:date>', methods = ["GET"])
