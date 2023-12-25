@@ -52,21 +52,21 @@ def create():
 @app.route('/register',methods=['GET','POST'])
 def register():
     if request.method == 'POST':
-        email = request.form['email']
+        emailOrPhone = request.form['emailOrPhone']
         name = request.form['name']
         password = request.form['password']
         # hashed_password = bcrypt.hash(password)
         hashed_password = flask_bcrypt.generate_password_hash(password).decode('utf-8')
 
         query = "select * from users where email = %s"
-        values = (email,)
+        values = (emailOrPhone,)
         mycursor.execute(query, values)
         result = mycursor.fetchone()
         if result:
-            return jsonify({"message":"Email Already Exist"}), 400
+            return jsonify({"message":"emailOrPhone Already Exist"}), 400
 
         query = "insert into users (email, name, password) Values (%s, %s, %s)"
-        values = (email, name, hashed_password)
+        values = (emailOrPhone, name, hashed_password)
         mycursor.execute(query, values)
         mydb.commit()
         return jsonify({"message":"User registered Successfully"}), 200
@@ -77,19 +77,17 @@ def register():
 @app.route('/login',methods=['GET','POST'])
 def login():
     if request.method == 'POST':
-        email = request.form['email']
+        emailOrPhone = request.form['emailOrPhone']
         password = request.form['password']
         query = "select * from users where email = %s"
-        values = (email,)
+        values = (emailOrPhone,)
         mycursor.execute(query, values)
         result = mycursor.fetchone()
 
         if result is None:
             return jsonify({"Message": "User Doesn't Exist"})
 
-        user = {'email':result[0], 'name':result[1], 'password':result[2]}
-        # import pdb
-        # pdb.set_trace()
+        user = {'emailOrPhone':result[0], 'name':result[1], 'password':result[2]}
 
         hashed_password_from_db = user['password']
 
