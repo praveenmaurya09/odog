@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template
-from datetime import date
+from datetime import datetime
 # from passlib.hash import bcrypt
 from flask_bcrypt import Bcrypt
 
@@ -26,10 +26,10 @@ def create():
     data = request.json
     if "goal" not in data or "description" not in data:
         return jsonify({"message":"Please fill all the details"}), 400
-    today_date = date.today()
+    current_datetime = datetime.now()
     
     query = "select * from Goals where Date = %s"
-    values = (today_date,)
+    values = (current_datetime,)
     mycursor.execute(query, values)
     result = mycursor.fetchone()
 
@@ -41,12 +41,24 @@ def create():
     
 
     query = "insert into Goals (Date, Goal, Description) Values (%s, %s, %s)"
-    values = (today_date, goal, description)
+    values = (current_datetime, goal, description)
     mycursor.execute(query, values)
 
     mydb.commit()
 
     return jsonify({"Message": "Goal Created Successfully"})
+
+@app.route('/delete_expired_tasks', methods=['GET'])
+def delete_expired_tasks():
+    # Calculate the time threshold (24 hours ago)
+    threshold = datetime.now() - timedelta(hours=24)
+    
+    query = "DELETE FROM Goals WHERE Date < %s"
+    values = (threshold.date(),)
+    mycursor.execute(query, values)
+    mydb.commit()
+
+    return jsonify({"Message": "Expired tasks deleted successfully"})
 
 @app.route('/register',methods=['GET','POST'])
 def register():
