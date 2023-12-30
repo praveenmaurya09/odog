@@ -1,7 +1,7 @@
-import os
-user = os.environ.get('DB_USER')
-passwd = os.environ.get('DB_PASS')
-print(user)
+# import os
+# user = os.environ.get('DB_USER')
+# passwd = os.environ.get('DB_PASS')
+# print(user)
 
 # import os
 
